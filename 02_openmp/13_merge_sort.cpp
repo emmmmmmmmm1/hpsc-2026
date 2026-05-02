@@ -2,7 +2,8 @@
 #include <cstdlib>
 #include <vector>
 
-void merge(std::vector<int>& vec, int begin, int mid, int end) {
+void merge(std::vector<int>& vec, int begin, int mid, int end) 
+{
   std::vector<int> tmp(end-begin+1);
   int left = begin;
   int right = mid+1;
@@ -21,12 +22,15 @@ void merge(std::vector<int>& vec, int begin, int mid, int end) {
 }
 
 void merge_sort(std::vector<int>& vec, int begin, int end) {
-  if(begin < end) {
-    int mid = (begin + end) / 2;
-    merge_sort(vec, begin, mid);
-    merge_sort(vec, mid+1, end);
-    merge(vec, begin, mid, end);
-  }
+ if(begin < end) {
+ int mid = (begin + end) / 2;
+ #pragma omp task shared(vec)
+ merge_sort(vec, begin, mid);
+ #pragma omp task shared(vec)
+ merge_sort(vec, mid+1, end);
+ #pragma omp taskwait
+ merge(vec, begin, mid, end);
+ }
 }
 
 int main() {
